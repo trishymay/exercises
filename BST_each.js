@@ -8,6 +8,10 @@ function BinarySearchTree() {
   this.root = null;
 }
 
+BinarySearchTree.prototype.addNode = function(val) {
+
+}
+
 BinarySearchTree.prototype.each = function(f, node) {
   node = (node === undefined) ? this.root : node;
   if(!node) return;
