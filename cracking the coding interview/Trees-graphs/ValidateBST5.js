@@ -15,12 +15,11 @@ function validateBST (binarySearchTree) {
 
 function traverse (node) {
   if (!node) return true;
-  var left = traverse(node.left);
+  if (traverse(node.left) === false) return false;
   if (node.left && node.left.val > node.val) return false
   if (node.right && node.right.val < node.val) return false
-  var right = traverse(node.right);
-  if (left && right) return true;
-  return false;
+  if (traverse(node.right) === false) return false;
+  return true;
 }
 
 var notBST = new BinaryTree();
