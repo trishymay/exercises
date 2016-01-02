@@ -11,7 +11,18 @@ BinarySearchTree.prototype.find = function(val) {
   var current = this.root;
   while (current) {
     if (val === current.val) return current;
-    (val < current.val) ? current = current.left : current = current.right;
+    current = val < current.val ? current.left : current.right;
+  }
+  return false;
+}
+
+BinarySearchTree.prototype.findParent = function(node) {
+  var current = this.root;
+  while (current) {
+    if ((node === current.left) || (node === current.right)) {
+      return current;
+    }
+    current = node.val <= current.val ? current.left : current.right;
   }
   return false;
 }
@@ -59,51 +70,71 @@ BinarySearchTree.prototype.addNodeRecursive = function (val, current) {
   return;
 }
 
-BinarySearchTree.prototype.min = function(current) {
+BinarySearchTree.prototype.min = function(node) {
   if (!this.root) return null;
-  if (!current) current = this.root;
-  while (current.left) current = current.left;
-  return current.val;
+  if (!node) node = this.root;
+  while (node.left) node = node.left;
+  return node;
 }
 
-BinarySearchTree.prototype.max = function(current) {
+BinarySearchTree.prototype.max = function(node) {
   if (!this.root) return null;
-  if (!current) current = this.root;
-  while (current.right) current = current.right;
-  return current.val;
+  if (!node) node = this.root;
+  while (node.right) node = node.right;
+  return node;
 }
 
-BinarySearchTree.prototype.removeNode = function(val, current) {
-  if (!this.root) return null;
-  if (this.root.val === val && !this.root.left && !this.root.right) {
-    this.root = null;
-    return;
-  }
-  if (!current) current = this.find(val);
+BinarySearchTree.prototype.removeNode = function(val) {
+  if (!this.root || !val) return null;
+  var current = this.find(val);
   if (!current) return null;
-  if (!current.left && !current.right) {
-    current > previous ? previous.right = null : previous.left = null;
-  } else if (!current.left) {
-    current = current.right;
-  } else if (!current.right) {
-    current = current.left;
+  var replacement;
+  var parent;
+  while (current.left || current.right) {
+    if (current.right && current.left) {
+      replacement = this.max(current.left);
+      current.val = replacement.val;
+    } else if (current.left) {
+      replacement = current.left;
+      current.val = replacement.val;
+      current.right = replacement.right;
+      current.left = replacement.left;
+      return;
+    } else {
+      replacement = current.right;
+      current.val = replacement.val;
+      current.right = replacement.right;
+      current.left = replacement.left;
+      return;
+    }
+    current = replacement;
+  }
+  parent = this.findParent(current);
+  if (!parent) {
+    this.root = null;
   } else {
-    var replacement = this.max(current.left);
-    current.val = replacement.val;
-    this.removeNode(replacement.val, replacement);
+    if (parent.right === current) {
+      parent.right = null;
+    } else {
+      parent.left = null;
+    }
   }
 }
 
 var bst = new BinarySearchTree();
-bst.addNode(13);
-bst.addNode(11);
-bst.addNode(12);
-bst.addNode(15);
-bst.addNode(14);
-bst.addNode(16);
-bst.addNode(17);
-bst.addNode(18);
+bst.addNode(30);
 bst.addNode(20);
-bst.addNode(19);
-bst.addNode(21);
+bst.addNode(45);
+bst.addNode(10);
+bst.addNode(25);
+bst.addNode(35);
+bst.addNode(55);
+bst.addNode(5);
+bst.addNode(15);
+bst.addNode(24);
+bst.addNode(26);
+bst.addNode(33);
+bst.addNode(40);
+bst.addNode(50);
+bst.addNode(65);
 
