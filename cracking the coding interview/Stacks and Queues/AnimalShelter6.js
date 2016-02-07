@@ -1,71 +1,84 @@
-function Animal (data, type) {
-  this.data = data;
+function Animal (type) {
   this.type = type;
   this.next = null;
 }
 
 function AnimalQueue () {
-  this.first = null;
-  this.last = null;
+  this.front = null;
+  this.end = null;
 }
 
-function Shelter () {
-  this.petIds = 0;
-  this.cats = new AnimalQueue();
-  this.dogs = new AnimalQueue();
-}
-
-AnimalQueue.prototype.add = function (data, type) {
-  if (!data || !type) return null;
-  if (type !== 'cat' && type !== 'dog') return null;
-  var animal = new Animal(data, type);
-  if (!this.last) {
-    this.first = animal;
+AnimalQueue.prototype.add = function (animal) {
+  if (!this.front) {
+    this.front = animal;
   } else {
-    this.last.next = animal;
+    this.end.next = animal;
   }
-  this.last = animal;
+  this.end = animal;
 };
 
 AnimalQueue.prototype.remove = function () {
-  if (!this.first) return null;
-  var removed = this.first;
-  this.first = this.first.next;
-  if (!this.first) this.last = null;
-  removed.next = null;
-  return removed;
+  if (!this.front) return null;
+  var pet = this.front;
+  if (!this.front.next) {
+    this.front = null;
+    this.end = null;
+  } else {
+    this.front = this.front.next;
+  }
+  return pet;
+};
+
+AnimalQueue.prototype.peek = function () {
+  return this.front;
 };
 
 AnimalQueue.prototype.isEmpty = function () {
-  if (!this.first) return true;
+  if (!this.front) return true;
   return false;
 };
 
-Shelter.prototype.addAnimal = function (data, type) {
-  if (!data || !type) return null;
-  if (type !== 'cat' && type !== 'dog') return null;
-  this.petIds++;
+function Shelter () {
+  this.cats = new AnimalQueue();
+  this.dogs = new AnimalQueue();
+  this.intakeCounter = 0;
+}
+
+Shelter.prototype.intake = function (type) {
+  if (type !== 'cat' && type !== 'dog') throw new Error('input must be cat or dog');
+  var pet = new Animal(type);
+  pet.intakeNum = ++this.intakeCounter;
   if (type === 'cat') {
-    this.cats.add(data, type);
-    this.cats.last.petId = this.petIds;
+    this.cats.add(pet);
   } else {
-    this.dogs.add(data, type);
-    this.dogs.last.petId = this.petIds;
+    this.dogs.add(pet);
   }
 };
 
-Shelter.prototype.adoptAnimal = function (type) {
+Shelter.prototype.adopt = function (type) {
+  if (type && type !== 'cat' && type !== 'dog') throw new Error('input must be cat or dog or left blank for first available pet');
+  if (this.cats.isEmpty() && this.dogs.isEmpty()) return "No animals available";
   if (!type) {
-    if (this.cats.isEmpty() && this.dogs.isEmpty()) return null;
-    else if (this.cats.isEmpty()) type = 'dog';
+    if (this.cats.isEmpty()) type = 'dog';
     else if (this.dogs.isEmpty()) type = 'cat';
-    else type = this.cats.first.petId > this.dogs.first.petId ? 'dog' : 'cat';
+    else if (this.cats.peek().intakeNum > this.dogs.peek().intakeNum) {
+      type = 'dog';
+    } else {
+      type = 'cat';
+    }
   }
-  var result = null;
-  if (type === 'cat') {
-    result = this.cats.remove();
-  } else if (type === 'dog') {
-    result = this.dogs.remove();
+  if (type === 'dog') {
+    return this.dogs.remove();
+  } else {
+    return this.cats.remove();
   }
-  return result;
 };
+
+var petPlace = new Shelter();
+petPlace.intake('cat');
+petPlace.intake('dog');
+petPlace.intake('cat');
+petPlace.intake('dog');
+petPlace.intake('dog');
+
+
